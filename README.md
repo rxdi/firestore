@@ -125,7 +125,7 @@ export class UserCollectionService {
 ```typescript
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { StaticMethods } from './static-mixins';
-export declare class GenericFirebaseModel<T> extends StaticMethods {
+export declare class FirestoreCollection<T> extends StaticMethods {
     private collection;
     constructor(collectionName: string, firestore: Firestore);
     getCollectionRef(): CollectionReference;
@@ -137,6 +137,7 @@ export declare class GenericFirebaseModel<T> extends StaticMethods {
     update(doc: string, payload: T): Promise<T>;
     findAll(where?: T): Promise<T[]>;
     find(payload: T): Promise<T>;
+    build<T>(payload: T): T;
 }
 ```
 
@@ -144,7 +145,7 @@ export declare class GenericFirebaseModel<T> extends StaticMethods {
 #### Mixins provide also static methods
 
 ```typescript
-import { GenericFirebaseModel } from './mixins';
+import { FirestoreCollection } from './mixins';
 export declare class StaticMethods {
     static create<T>(payload: T, doc?: string): Promise<T>;
     static getCollectionRef(): FirebaseFirestore.CollectionReference;
@@ -152,8 +153,9 @@ export declare class StaticMethods {
     static getRef(doc: string): FirebaseFirestore.DocumentReference;
     static get<T>(doc: string): Promise<T>;
     static delete(doc: string): Promise<FirebaseFirestore.WriteResult>;
-    static update<T>(doc: string, payload: T): Promise<any>;
+    static update<T>(doc: string, payload: T): Promise<T>;
     static findAll<T>(where?: T): Promise<T[]>;
-    static find<T>(payload: T): Promise<any>;
+    static find<T>(payload: T): Promise<T>;
+    static build<T>(payload: T): T;
 }
 ```

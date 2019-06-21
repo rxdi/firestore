@@ -47,5 +47,8 @@ class StaticMethods {
             return StaticMethods.model.find(payload);
         });
     }
+    static build(payload) {
+        return payload;
+    }
 }
 exports.StaticMethods = StaticMethods;

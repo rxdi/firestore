@@ -1,6 +1,6 @@
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { StaticMethods } from './static-mixins';
-export declare class GenericFirebaseModel<T> extends StaticMethods {
+export declare class FirestoreCollection<T> extends StaticMethods {
     private collection;
     constructor(collectionName: string, firestore: Firestore);
     getCollectionRef(): CollectionReference;
@@ -12,4 +12,5 @@ export declare class GenericFirebaseModel<T> extends StaticMethods {
     update(doc: string, payload: T): Promise<T>;
     findAll(where?: T): Promise<T[]>;
     find(payload: T): Promise<T>;
+    build<T>(payload: T): T;
 }

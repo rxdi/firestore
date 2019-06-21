@@ -2,12 +2,12 @@ import { CollectionReference, Firestore, Query } from '@google-cloud/firestore';
 import { StaticMethods } from './static-mixins';
 
 
-export class GenericFirebaseModel<T> extends StaticMethods {
+export class FirestoreCollection<T> extends StaticMethods {
   private collection: CollectionReference;
   constructor(collectionName: string, firestore: Firestore) {
     super();
     this.collection = firestore.collection(collectionName);
-    GenericFirebaseModel.setStaticSelf(this);
+    FirestoreCollection.setStaticSelf(this);
   }
 
   getCollectionRef() {
@@ -43,7 +43,7 @@ export class GenericFirebaseModel<T> extends StaticMethods {
     return this.getRef(doc).delete();
   }
 
-  async update(doc: string, payload: T) {
+  async update(doc: string, payload: T): Promise<T> {
     await this.getRef(doc).update(payload);
     return this.get(doc);
   }
@@ -63,7 +63,7 @@ export class GenericFirebaseModel<T> extends StaticMethods {
     return (await query.get()).docs.map(doc => doc.data()) as T[];
   }
 
-  async find(payload: T) {
+  async find(payload: T): Promise<T> {
     const docs = await this.findAll(payload);
     if (docs.length > 1) {
       throw new Error('More than one documents found for this query');
@@ -72,5 +72,9 @@ export class GenericFirebaseModel<T> extends StaticMethods {
       return docs[0];
     }
     return null;
+  }
+
+  build<T>(payload: T): T {
+    return payload;
   }
 }

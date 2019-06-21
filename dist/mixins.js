@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const static_mixins_1 = require("./static-mixins");
-class GenericFirebaseModel extends static_mixins_1.StaticMethods {
+class FirestoreCollection extends static_mixins_1.StaticMethods {
     constructor(collectionName, firestore) {
         super();
         this.collection = firestore.collection(collectionName);
-        GenericFirebaseModel.setStaticSelf(this);
+        FirestoreCollection.setStaticSelf(this);
     }
     getCollectionRef() {
         return this.collection;
@@ -77,5 +77,8 @@ class GenericFirebaseModel extends static_mixins_1.StaticMethods {
             return null;
         });
     }
+    build(payload) {
+        return payload;
+    }
 }
-exports.GenericFirebaseModel = GenericFirebaseModel;
+exports.FirestoreCollection = FirestoreCollection;
