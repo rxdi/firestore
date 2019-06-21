@@ -61,7 +61,7 @@ When executing `admin.credential.applicationDefault()` firebase will get path fr
 
 ```typescript
 import { Injectable, Inject } from '@rxdi/core';
-import { GenericFirebaseModel, Firestore } from '@rxdi/firebase';
+import { GenericFirebaseModel, Firestore } from '@rxdi/firestore';
 
 interface IUserType {
   id: string;
@@ -72,30 +72,13 @@ interface IUserType {
 @Injectable()
 export class UserCollection extends GenericFirebaseModel<IUserType> {
   constructor(@Inject(Firestore) firestore: Firestore) {
-    super(firestore, 'users');
+    super('users', firestore);
   }
 }
 
 ```
 
-
-
-#### Import it inside some module for example `models.module.ts`
-
-
-```typescript
-import { Module } from '@rxdi/core';
-import { UserCollection } from './models/user';
-
-@Module({
-  providers: [UserCollection]
-})
-export class ModelsModule {}
-
-```
-
-
-#### import `ModelsModule` it inside AppModule
+#### import `UserCollection` inside `AppModule` as a provider/service
 
 ```typescript
 import { Module } from '@rxdi/core';
@@ -103,6 +86,7 @@ import { FirebaseModule } from '@rxdi/firestore';
 import { ModelsModule } from '../database/models.module';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { UserCollection } from './models/user';
 
 @Module({
   imports: [
@@ -112,8 +96,8 @@ import * as admin from 'firebase-admin';
         ? admin.credential.applicationDefault()
         : functions.config().firebase
     }),
-    ModelsModule
   ],
+  providers: [UserCollection]
 })
 export class AppModule {}
 
@@ -136,16 +120,40 @@ export class UserCollectionService {
 
 ```
 
-#### Mixins provide the following methods
+#### Mixins provide the following instance methods
 
 ```typescript
-export declare class GenericFirebaseModel<T> {
-    createDocument(payload: T, doc?: string): Promise<T>;
-    getDocumentRef(doc: string): FirebaseFirestore.DocumentReference;
-    getDocument(doc: string): Promise<T>;
-    deleteDocument(doc: string): Promise<FirebaseFirestore.WriteResult>;
-    updateDocument(doc: string, payload: T): Promise<T>;
-    findDocuments(where?: T): Promise<T[]>;
-    findDocument(payload: T): Promise<T>;
+import { CollectionReference, Firestore } from '@google-cloud/firestore';
+import { StaticMethods } from './static-mixins';
+export declare class GenericFirebaseModel<T> extends StaticMethods {
+    private collection;
+    constructor(collectionName: string, firestore: Firestore);
+    getCollectionRef(): CollectionReference;
+    getFirestoreRef(): Firestore;
+    getRef(doc: string): FirebaseFirestore.DocumentReference;
+    create(payload: T, doc?: string): Promise<T>;
+    get(doc: string): Promise<T>;
+    delete(doc: string): Promise<FirebaseFirestore.WriteResult>;
+    update(doc: string, payload: T): Promise<T>;
+    findAll(where?: T): Promise<T[]>;
+    find(payload: T): Promise<T>;
+}
+```
+
+
+#### Mixins provide also static methods
+
+```typescript
+import { GenericFirebaseModel } from './mixins';
+export declare class StaticMethods {
+    static create<T>(payload: T, doc?: string): Promise<T>;
+    static getCollectionRef(): FirebaseFirestore.CollectionReference;
+    static getFirestoreRef(): FirebaseFirestore.Firestore;
+    static getRef(doc: string): FirebaseFirestore.DocumentReference;
+    static get<T>(doc: string): Promise<T>;
+    static delete(doc: string): Promise<FirebaseFirestore.WriteResult>;
+    static update<T>(doc: string, payload: T): Promise<any>;
+    static findAll<T>(where?: T): Promise<T[]>;
+    static find<T>(payload: T): Promise<any>;
 }
 ```

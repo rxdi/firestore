@@ -8,39 +8,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-class GenericFirebaseModel {
-    constructor(firestore, collectionName) {
+const static_mixins_1 = require("./static-mixins");
+class GenericFirebaseModel extends static_mixins_1.StaticMethods {
+    constructor(collectionName, firestore) {
+        super();
         this.collection = firestore.collection(collectionName);
+        GenericFirebaseModel.setStaticSelf(this);
     }
-    createDocument(payload, doc) {
+    getCollectionRef() {
+        return this.collection;
+    }
+    getFirestoreRef() {
+        return this.collection.firestore;
+    }
+    getRef(doc) {
+        return this.collection.doc(doc);
+    }
+    create(payload, doc) {
         return __awaiter(this, void 0, void 0, function* () {
             let ref = this.collection.doc();
             if (doc) {
-                ref = this.getDocumentRef(doc);
+                ref = this.getRef(doc);
             }
             payload['id'] = ref.id;
             const document = yield ref.set(payload);
             return Object.assign({ writeTime: document.writeTime }, payload);
         });
     }
-    getDocumentRef(doc) {
-        return this.collection.doc(doc);
-    }
-    getDocument(doc) {
+    get(doc) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (yield this.getDocumentRef(doc).get()).data();
+            return (yield this.getRef(doc).get()).data();
         });
     }
-    deleteDocument(doc) {
-        return this.getDocumentRef(doc).delete();
+    delete(doc) {
+        return this.getRef(doc).delete();
     }
-    updateDocument(doc, payload) {
+    update(doc, payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.getDocumentRef(doc).update(payload);
-            return this.getDocument(doc);
+            yield this.getRef(doc).update(payload);
+            return this.get(doc);
         });
     }
-    findDocuments(where) {
+    findAll(where) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!where) {
                 const snapshot = yield this.collection.get();
@@ -56,9 +65,9 @@ class GenericFirebaseModel {
             return (yield query.get()).docs.map(doc => doc.data());
         });
     }
-    findDocument(payload) {
+    find(payload) {
         return __awaiter(this, void 0, void 0, function* () {
-            const docs = yield this.findDocuments(payload);
+            const docs = yield this.findAll(payload);
             if (docs.length > 1) {
                 throw new Error('More than one documents found for this query');
             }
